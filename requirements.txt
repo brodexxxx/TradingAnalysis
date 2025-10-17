@@ -12,6 +12,7 @@ openpyxl
 scikit-learn
 joblib
 pytz
+yfinance
 
 # Note: heavy or optional packages (xgboost, lightgbm, transformers, etc.) are
 # listed in `requirements-dev.txt`. Keep `requirements.txt` minimal so Streamlit
