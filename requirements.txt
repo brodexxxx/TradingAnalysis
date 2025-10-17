@@ -2,10 +2,6 @@ streamlit
 pandas
 numpy
 matplotlib
-streamlit
-pandas
-numpy
-matplotlib
 ta
 requests
 openpyxl
@@ -15,8 +11,5 @@ pytz
 yfinance
 alpha_vantage
 twelvedata
-
-# Note: heavy or optional packages (xgboost, lightgbm, transformers, etc.) are
-# listed in `requirements-dev.txt`. Keep `requirements.txt` minimal so Streamlit
-# Cloud or other simple deploy targets can install dependencies reliably.
-matplotlib
+sqlalchemy
+peewee
