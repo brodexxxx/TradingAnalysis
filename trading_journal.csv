@@ -1,0 +1,5 @@
+timestamp,symbol,action,price,reason,stop_loss,take_profit
+2025-10-17 09:51:16.555336,Sensex,SELL,94.80767413029533,"Strong Sell: 6 sell signals vs 1 buy signals, ML: hold",95.53073688067096,92.9115206476894
+2025-10-17 09:52:19.419091,Sensex,SELL,94.80767413029533,"Strong Sell: 6 sell signals vs 1 buy signals, ML: hold",95.53073688067096,92.9115206476894
+2025-10-17 10:02:54.639126,Sensex,SELL,94.80767413029533,"Strong Sell: 6 sell signals vs 1 buy signals, ML: hold",95.53073688067096,92.9115206476894
+2025-10-17 11:23:08.104959,Sensex,BUY,54000.0,Test buy signal,53500.0,55000.0

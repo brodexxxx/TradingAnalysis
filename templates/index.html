@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Analysis App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Comprehensive Trading Analysis</h1>
+    <div id="symbols">
+        <button onclick="analyze('Sensex')">Sensex</button>
+        <button onclick="analyze('BankNifty')">BankNifty</button>
+        <button onclick="analyze('Nifty50')">Nifty50</button>
+        <button onclick="analyze('CrudeOil')">Crude Oil</button>
+    </div>
+    <div id="results"></div>
+    <div id="chart"></div>
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+</body>
+</html>
