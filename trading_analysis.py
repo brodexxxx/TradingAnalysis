@@ -14,7 +14,7 @@ from risk_management import position_size
 from stop_losses import initial_stop_loss
 from trading_journal import log_entry
 from indicators import get_indicator_signals
-from ml_predictor import predictor
+from ml_predictor import get_predictor
 from models import TradingRecord, session
 import json
 import ta  # For RSI
@@ -107,8 +107,22 @@ def analyze_symbol(symbol_name, symbol):
             'momentum': macd,  # MACD as momentum proxy
         }
 
-        action = predictor.predict(indicators)
-        confidence = predictor.get_prediction_confidence(indicators)
+        # Use lazy predictor to avoid heavy initialization during import
+        predictor = get_predictor()
+        if predictor:
+            action = predictor.predict(indicators)
+            confidence = predictor.get_prediction_confidence(indicators)
+        else:
+            # Fallback rule-based action when the ML predictor isn't available
+            if indicators['rsi'] < 30 and indicators['momentum'] > 0:
+                action = 'buy'
+                confidence = 0.6
+            elif indicators['rsi'] > 70 and indicators['momentum'] < 0:
+                action = 'sell'
+                confidence = 0.6
+            else:
+                action = 'hold'
+                confidence = 0.5
 
         # Calculate precise price targets based on current market conditions
         current_price = close_prices.iloc[-1]

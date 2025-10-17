@@ -281,5 +281,22 @@ class MLPredictor:
         probabilities = self.model.predict_proba(input_data_scaled)[0]
         return max(probabilities)
 
-# Global predictor instance
-predictor = MLPredictor()
+# Lazy global predictor instance to avoid heavy work at import time
+predictor = None
+
+def get_predictor():
+    """
+    Return a singleton MLPredictor instance. Initialize lazily and handle
+    initialization errors gracefully so importing this module won't crash
+    the app during deploy.
+    """
+    global predictor
+    if predictor is None:
+        try:
+            predictor = MLPredictor()
+        except Exception as e:
+            # Log the error and keep predictor None. The app can continue
+            # and fall back to rule-based logic when predictor is unavailable.
+            print(f"Error initializing MLPredictor: {e}")
+            predictor = None
+    return predictor
