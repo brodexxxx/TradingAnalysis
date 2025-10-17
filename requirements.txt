@@ -2,6 +2,10 @@ streamlit
 pandas
 numpy
 matplotlib
+streamlit
+pandas
+numpy
+matplotlib
 ta
 requests
 openpyxl
@@ -12,39 +16,4 @@ pytz
 # Note: heavy or optional packages (xgboost, lightgbm, transformers, etc.) are
 # listed in `requirements-dev.txt`. Keep `requirements.txt` minimal so Streamlit
 # Cloud or other simple deploy targets can install dependencies reliably.
-yfinance
-pandas
-numpy
-ta
 matplotlib
-pytz
-schedule
-SQLAlchemy
-scikit-learn
-flask
-flask
-plotly
-scikit-learn
-pandas-ta
-xgboost
-lightgbm
-prophet
-seaborn
-streamlit
-requests
-tweepy
-nltk
-spacy
-textblob
-transformers
-gensim
-statsmodels
-keras
-hdbscan
-wordcloud
-openpyxl
-scrapy
-alpha_vantage
-polygon-api-client
-twelve-data
-joblib
