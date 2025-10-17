@@ -1,3 +1,16 @@
+streamlit
+pandas
+numpy
+matplotlib
+ta
+requests
+openpyxl
+scikit-learn
+joblib
+
+# Note: heavy or optional packages (xgboost, lightgbm, transformers, etc.) are
+# listed in `requirements-dev.txt`. Keep `requirements.txt` minimal so Streamlit
+# Cloud or other simple deploy targets can install dependencies reliably.
 yfinance
 pandas
 numpy
