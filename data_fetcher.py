@@ -20,16 +20,11 @@ def get_historical_data(symbol, years=1):
 
     data = pd.DataFrame()
 
-    # Try multiple sources for Indian markets
-    if symbol in ['^BSESN', '^NSEI', '^NSEBANK']:
-        data = get_indian_market_data(symbol.replace('^', ''), start_date, end_date)
-    else:
-        # For other symbols, try yfinance first (suppress errors)
-        try:
-            data = yf.download(symbol, start=start_date, end=end_date, interval='1d', progress=False)
-        except Exception as e:
-            # Suppress yfinance errors, fallback to mock data
-            pass
+    # Try yfinance first for all symbols (including Indian markets with .NS symbols)
+    try:
+        data = yf.download(symbol, start=start_date, end=end_date, interval='1d', progress=False)
+    except Exception as e:
+        print(f"yfinance error for {symbol}: {e}")
 
     # Fallback to mock data if all sources fail
     if data.empty:
@@ -46,7 +41,7 @@ def get_mock_historical_data(symbol, years=6):
     np.random.seed(42)  # For reproducible mock data
 
     base_price = {
-        'Sensex': 84400,  # Updated to current market level
+        'Sensex': 83754,  # Updated to current market level
         'BankNifty': 52000,
         'Nifty50': 24000,
         'CrudeOil': 85
@@ -70,35 +65,7 @@ def get_mock_historical_data(symbol, years=6):
 
     return data
 
-def get_realtime_data(symbol, period='1d', interval='5m'):
-    """
-    Fetch real-time intraday data using multiple sources.
-    """
-    data = pd.DataFrame()
 
-    # Try multiple sources for Indian markets
-    if symbol in ['^BSESN', '^NSEI', '^NSEBANK']:
-        ist = pytz.timezone('Asia/Kolkata')
-        end_date = datetime.now(ist)
-        start_date = end_date - timedelta(days=1)
-        data = get_indian_market_data(symbol.replace('^', ''), start_date, end_date, intraday=True)
-    else:
-        # For other symbols, try yfinance (suppress errors)
-        try:
-            data = yf.download(symbol, period=period, interval=interval, progress=False)
-        except Exception as e:
-            # Suppress yfinance errors, fallback to mock data
-            pass
-
-    # Fallback to mock data
-    if data.empty:
-        print(f"Using mock data for {symbol}")
-        ist = pytz.timezone('Asia/Kolkata')
-        end_date = datetime.now(ist)
-        start_date = end_date - timedelta(days=1)
-        data = generate_mock_data(start_date, end_date, symbol, intraday=True)
-
-    return data
 
 def get_indian_market_data(index_name, start_date, end_date, intraday=False):
     """
@@ -174,12 +141,12 @@ def generate_mock_data(start_date, end_date, symbol, intraday=False):
 
     # Base prices for different symbols (updated for current market levels)
     base_prices = {
-        '^BSESN': 84400,  # Updated Sensex base price to current market level
+        '^BSESN': 83754,  # Updated Sensex base price to current market level
         '^NSEI': 25000,   # Updated Nifty50 base price
         '^NSEBANK': 52000, # Updated BankNifty base price
         'CL=F': 70,       # Updated Crude Oil base price
         'NIFTY50.NS': 25000,
-        'SENSEX.NS': 84400,  # Updated Sensex base price to current market level
+        'SENSEX.NS': 83754,  # Updated Sensex base price to current market level
         'BANKNIFTY.NS': 52000
     }
 
@@ -239,19 +206,19 @@ def is_market_open():
     market_close = now.replace(hour=15, minute=30, second=0, microsecond=0)
     return market_open <= now <= market_close and now.weekday() < 5  # Mon-Fri
 
-# Symbol mappings
+# Symbol mappings - Updated to use reliable Yahoo Finance .NS symbols
 symbols = {
-    'Sensex': '^BSESN',
-    'BankNifty': '^NSEBANK',
-    'Nifty50': '^NSEI',
+    'Sensex': 'SENSEX.NS',      # BSE Sensex
+    'BankNifty': 'BANKNIFTY.NS', # Bank Nifty
+    'Nifty50': 'NIFTY50.NS',    # Nifty 50
     'CrudeOil': 'CL=F'  # WTI Crude, adjust if needed for Brent
 }
 
 # Alternative symbols if primary fail
 alt_symbols = {
     'Sensex': '^BSESN',
-    'BankNifty': 'BANKNIFTY.NS',
-    'Nifty50': 'NIFTY50.NS',
+    'BankNifty': '^NSEBANK',
+    'Nifty50': '^NSEI',
     'CrudeOil': 'BZ=F'  # Brent Crude
 }
 
@@ -342,7 +309,7 @@ def get_mock_data(symbol):
     # This ensures fresh data that's closer to current market levels
     
     base_price = {
-        'Sensex': 84400,  # Updated to current market level
+        'Sensex': 83754,  # Updated to current market level
         'BankNifty': 52000,
         'Nifty50': 24000,
         'CrudeOil': 85
@@ -489,24 +456,117 @@ def get_twelve_data(symbol, period='1d', interval='5m'):
 
     return pd.DataFrame()
 
+def get_fo_data(symbol='NIFTY', expiry_date=None):
+    """
+    Fetch Futures and Options (F&O) data from NSE using web scraping.
+    """
+    try:
+        # If no expiry date provided, get the nearest expiry
+        if not expiry_date:
+            ist = pytz.timezone('Asia/Kolkata')
+            today = datetime.now(ist).date()
+            # Find next Thursday (typical F&O expiry)
+            days_ahead = (3 - today.weekday()) % 7
+            if days_ahead == 0:
+                days_ahead = 7
+            expiry_date = today + timedelta(days=days_ahead)
+
+        # Format expiry date for NSE URL
+        expiry_str = expiry_date.strftime('%d%b%Y').upper()
+
+        # NSE F&O data URL
+        url = f"https://www.nseindia.com/api/option-chain-indices?symbol={symbol}"
+
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Referer': 'https://www.nseindia.com/option-chain'
+        }
+
+        response = requests.get(url, headers=headers, timeout=10)
+
+        if response.status_code == 200:
+            data = response.json()
+
+            if 'records' in data and 'data' in data['records']:
+                fo_data = []
+
+                for record in data['records']['data']:
+                    # Extract relevant F&O data
+                    fo_record = {
+                        'strikePrice': record.get('strikePrice', 0),
+                        'expiryDate': record.get('expiryDate', ''),
+                        'CE': {
+                            'openInterest': record.get('CE', {}).get('openInterest', 0),
+                            'changeinOpenInterest': record.get('CE', {}).get('changeinOpenInterest', 0),
+                            'totalTradedVolume': record.get('CE', {}).get('totalTradedVolume', 0),
+                            'impliedVolatility': record.get('CE', {}).get('impliedVolatility', 0),
+                            'lastPrice': record.get('CE', {}).get('lastPrice', 0),
+                            'change': record.get('CE', {}).get('change', 0)
+                        },
+                        'PE': {
+                            'openInterest': record.get('PE', {}).get('openInterest', 0),
+                            'changeinOpenInterest': record.get('PE', {}).get('changeinOpenInterest', 0),
+                            'totalTradedVolume': record.get('PE', {}).get('totalTradedVolume', 0),
+                            'impliedVolatility': record.get('PE', {}).get('impliedVolatility', 0),
+                            'lastPrice': record.get('PE', {}).get('lastPrice', 0),
+                            'change': record.get('PE', {}).get('change', 0)
+                        }
+                    }
+                    fo_data.append(fo_record)
+
+                return pd.DataFrame(fo_data)
+
+    except Exception as e:
+        print(f"Failed to fetch F&O data for {symbol}: {e}")
+
+    return pd.DataFrame()
+
+def auto_update_fo_data(symbols=['NIFTY', 'BANKNIFTY'], update_interval_minutes=15):
+    """
+    Automatically update F&O data at regular intervals.
+    """
+    import time
+    import threading
+
+    def update_worker():
+        while True:
+            try:
+                print(f"Updating F&O data at {datetime.now()}")
+
+                for symbol in symbols:
+                    fo_data = get_fo_data(symbol)
+                    if not fo_data.empty:
+                        # Save to CSV for persistence
+                        filename = f"fo_data_{symbol.lower()}_{datetime.now().strftime('%Y%m%d')}.csv"
+                        fo_data.to_csv(filename, index=False)
+                        print(f"Updated F&O data for {symbol}: {len(fo_data)} records")
+
+                # Wait for next update
+                time.sleep(update_interval_minutes * 60)
+
+            except Exception as e:
+                print(f"Error in auto-update: {e}")
+                time.sleep(60)  # Wait 1 minute before retrying
+
+    # Start background thread for auto-updates
+    update_thread = threading.Thread(target=update_worker, daemon=True)
+    update_thread.start()
+
+    print(f"Started auto-update for F&O data (every {update_interval_minutes} minutes)")
+
 def get_realtime_data(symbol, period='1d', interval='5m'):
     """
     Fetch real-time intraday data using multiple sources.
     """
     data = pd.DataFrame()
 
-    # Try multiple sources for Indian markets
-    if symbol in ['^BSESN', '^NSEI', '^NSEBANK']:
-        ist = pytz.timezone('Asia/Kolkata')
-        end_date = datetime.now(ist)
-        start_date = end_date - timedelta(days=1)
-        data = get_indian_market_data(symbol.replace('^', ''), start_date, end_date, intraday=True)
-    else:
-        # For other symbols, try yfinance
-        try:
-            data = yf.download(symbol, period=period, interval=interval)
-        except:
-            pass
+    # Try yfinance first for all symbols (including Indian markets with .NS symbols)
+    try:
+        data = yf.download(symbol, period=period, interval=interval, progress=False)
+    except Exception as e:
+        print(f"yfinance error for {symbol}: {e}")
 
     # Fallback to mock data
     if data.empty:
