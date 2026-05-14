@@ -29,29 +29,7 @@ This repository contains a comprehensive trading analysis toolkit for stock mark
 ## Note
 - The file `trading_model.pkl` is excluded due to GitHub's file size limits. Please add your own model file if needed.
 
-## Indian Index Algo Trading Toolkit (NIFTY 50 / SENSEX)
-
-This repo now includes `indian_index_algo.py`, a modular foundation to build algo trading workflows for Indian indices.
-
-It provides:
-- Scope and execution mode controls (`signals_only`, `paper`, `live`)
-- Compliance checks for NSE/BSE session timing
-- Data layer with OHLCV quality validation
-- Backtesting with realistic Indian transaction cost assumptions (brokerage, STT, GST, slippage, latency)
-- Risk controls (max risk per trade, daily loss limit, max exposure, kill switch)
-- Paper execution broker with reconciliation
-- Monitoring snapshots and daily health report generation
-- Strategy version registry with out-of-sample and walk-forward promotion gates
-
-Quick usage:
-```python
-from indian_index_algo import DataLayer, BacktestEngine, RiskController, PaperBroker
-```
-
-Run toolkit tests:
-```bash
-python -m unittest test_indian_index_algo.py
-```
-
 ## License
 See `LICENSE` for details.
+# TradingAnalysis
+
