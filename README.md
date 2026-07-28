@@ -46,5 +46,5 @@ The repository includes `indian_index_algo.py`, a baseline modular workflow for 
 Run targeted tests:
 
 ```
-python -m pytest test_indian_index_algo.py
+python -m unittest -q test_indian_index_algo.py
 ```
