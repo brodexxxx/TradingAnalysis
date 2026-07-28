@@ -33,3 +33,18 @@ This repository contains a comprehensive trading analysis toolkit for stock mark
 See `LICENSE` for details.
 # TradingAnalysis
 
+## Indian Index Algo Toolkit
+
+The repository includes `indian_index_algo.py`, a baseline modular workflow for Indian index algo-trading research and simulation with:
+
+- OHLCV data quality validation
+- Transaction-cost-aware backtesting
+- Risk limit checks
+- Paper execution simulation
+- Basic performance monitoring and strategy promotion gating
+
+Run targeted tests:
+
+```
+python -m unittest -q test_indian_index_algo.py
+```
